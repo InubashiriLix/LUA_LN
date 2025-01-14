@@ -1,5 +1,7 @@
 local file_data_module = {}
 
+file_data_module.lfs = require("lfs")
+
 file_data_module.file_data = {
 	["file_type"] = "", -- 文件类型，例如 "text", "image", "video", "directory" 等
 	["file_name"] = "", -- 文件名，带扩展名
@@ -22,30 +24,14 @@ file_data_module.file_data = {
 	["file_tags"] = {}, -- 文件标签（用户自定义的一些分类标记）
 }
 
-file_data_module.file_type_map = {
-	["text"] = "文本文件",
-	["image"] = "图片文件",
-	["video"] = "视频文件",
-	["audio"] = "音频文件",
-	["archive"] = "压缩文件",
-	["document"] = "文档文件",
-	["spreadsheet"] = "表格文件",
-	["presentation"] = "演示文件",
-	["database"] = "数据库文件",
-	["executable"] = "可执行文件",
-	["font"] = "字体文件",
-	["pdf"] = "PDF 文件",
-	["source_code"] = "源代码文件",
-	["web"] = "网页文件",
-	["system"] = "系统文件",
-	["settings"] = "设置文件",
-	["backup"] = "备份文件",
-	["temp"] = "临时文件",
-	["log"] = "日志文件",
-	["directory"] = "文件夹",
-	["unknown"] = "未知文件",
-}
-
-file_data_module.file_extension_types = {}
+function file_data_module:new(file_abs_path)
+	if file_abs_path == nil or type(file_abs_path) ~= "string" then
+		error("file_abs_path is required and must be a string")
+	end
+	local data = self.lfs.attribute(file_abs_path)
+	if data == nil then
+		error("file is not exists")
+	end
+end
 
 return file_data_module
