@@ -1,20 +1,25 @@
 {
-    "Lua": {
-        "runtime": {
-            "version": "LuaJIT",
-            "path": [
-                "?.lua",
-                "?/init.lua"
-            ]
-        },
-        "workspace": {
-            "checkThirdParty": false,
-            "library": [
-                "./src"
-            ]
-        },
-        "diagnostics": {
-            "globals": ["vim"]
-        }
+  "Lua": {
+    "runtime": {
+      "version": "LuaJIT",
+      "path": [
+        "?.lua",
+        "?/init.lua"
+      ]
+    },
+    "workspace": {
+      "checkThirdParty": true,
+      "library": [
+        "./src",
+        "/usr/local/lib/luarocks/rocks-5.4/",
+                "${3rd}/lfs/library"
+      ]
+    },
+    "diagnostics": {
+      "globals": [
+        "vim",
+        "lfs"
+      ]
     }
+  }
 }
