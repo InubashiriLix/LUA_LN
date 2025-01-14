@@ -1,6 +1,6 @@
 local log_module = {}
 local lfs = require("lfs")
-local settings = require("settings")
+local settings = require("src.settings")
 
 log_module.create_status = {
 	["CREATE_SUCCESS"] = 1,
@@ -59,7 +59,6 @@ function log_module:create_log_file(name, log_type)
 	self.log_writing_flags[log_type] = false
 end
 
--- TODO: may be use the coroutine to write the log file
 function log_module:daily_log_append_(name, content)
 	self.log_daily_writing_flag = true
 	-- appending mode for log file
@@ -75,17 +74,20 @@ function log_module:daily_log_append_(name, content)
 	-- then we confirm that the file has been exist
 	self.log_writing_flags.daily_log = true
 	local timestamp = os.date("%Y-%m-%d %H:%M:%S")
-	file:write("[ " .. timestamp .. " ]" .. content)
+	file:write("\n[ " .. timestamp .. " ] " .. content)
 	file:flush()
 	file:close()
 	self.log_writing_flags.daily_log = false
 	return self.log_ststus.NEW_LINE_ADDED_SUCCESS
 end
 
+-- NOTE: use function to append the log
 function log_module:log_append(content, log_type)
+	-- TODO: What if the the date is changed when the log is appended?
 	if log_type == self.log_type.DAILY_LOG then
 		return self:daily_log_append_(os.date("%Y-%m-%d") .. ".log", content)
 	end
+	-- NOTE: please update there if new log type is added
 end
 
 function log_module:init()
@@ -98,8 +100,9 @@ function log_module:init()
 	-- create the daily log file, if the file does not exist, then create it
 	local date = os.date("%Y-%m-%d")
 	local daily_log_name = date .. ".log"
-	local create_status = self.create_log_file_(daily_log_name, self.log_type.DAILY_LOG)
-	if create_status ~= self.create_status.CREATE_SUCCESS then
+	local create_status = self:create_log_file(daily_log_name, self.log_type.DAILY_LOG)
+	if create_status == self.create_status["CREATE_FAILED"] then
+		-- print(create_status)
 		error("create log file failed")
 	end
 end
