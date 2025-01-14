@@ -24,3 +24,16 @@ local socket = require("socket")
 -- log_module:log_append("test", log_module.log_type.DAILY_LOG)
 -- log_module:log_append("test", log_module.log_type.DAILY_LOG)
 -- log_module:log_append("test", log_module.log_type.DAILY_LOG)
+--
+
+-- test fore the qeue
+-- local queue_module = require("src.queue")
+-- local function test_queue()
+-- 	print("test")
+-- end
+--
+-- local test1 = coroutine.wrap(test_queue)
+-- local test2 = coroutine.wrap(test_queue)
+-- queue_module.LogQueue:add(test1)
+-- queue_module.LogQueue:add(test2)
+-- queue_module.LogQueue:run()

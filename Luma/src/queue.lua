@@ -1,6 +1,6 @@
 local queue_module = {}
 
-local settings = require("settings")
+local settings = require("src.settings")
 
 queue_module.LogQueue = {}
 queue_module.LogQueue.queue = {}
