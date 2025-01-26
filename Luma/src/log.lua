@@ -90,11 +90,23 @@ function log_module:log_append(content, log_type)
 	-- NOTE: please update there if new log type is added
 end
 
+--- append the content to the daily log file
+--- @return boolean
+function log_module:log_daily_append(content)
+	local temp_log_write_state = self:log_append(content, self.log_type.DAILY_LOG)
+	-- if not temp_log_write_state == self.log_ststus.NEW_LINE_ADDED_SUCCESS then
+	-- 	error("daily log append failed")
+	-- end
+	return true
+end
+
 function log_module:init()
 	-- check if the log_directory exists
 	-- if not exists, then create the directory
 	if lfs.attributes(settings.log_path) == nil then
-		lfs.mkdir(settings.log_path)
+		if not lfs.mkdir(settings.log_path) then
+			error("create log dir failed")
+		end
 	end
 
 	-- create the daily log file, if the file does not exist, then create it
@@ -102,7 +114,6 @@ function log_module:init()
 	local daily_log_name = date .. ".log"
 	local create_status = self:create_log_file(daily_log_name, self.log_type.DAILY_LOG)
 	if create_status == self.create_status["CREATE_FAILED"] then
-		-- print(create_status)
 		error("create log file failed")
 	end
 end
