@@ -10,15 +10,20 @@
     "workspace": {
       "checkThirdParty": true,
       "library": [
+        "./test",
         "./src",
+        "./lib",
+        "${workspace}/**",
         "/usr/local/lib/luarocks/rocks-5.4/",
-                "${3rd}/lfs/library"
+        "${3rd}/lfs/library",
+        "${3rd}/cjson/library"
       ]
     },
     "diagnostics": {
       "globals": [
         "vim",
-        "lfs"
+        "lfs",
+        "cjson"
       ]
     }
   }
