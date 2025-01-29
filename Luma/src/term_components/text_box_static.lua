@@ -1,4 +1,4 @@
-local term = require("src.terminator")
+local term = require("src.term_components.terminator")
 local text_box_static = {}
 
 --- @ class text_box_static

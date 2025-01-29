@@ -1,6 +1,6 @@
 local ayu = require("src.scheme").ayu
-local text_box_dynamic = require("src.text_box_dynamic")
-local term = require("src.terminator")
+local text_box_dynamic = require("src.term_components.text_box_dynamic")
+local term = require("src.term_components.terminator")
 
 -- 清屏
 term.clear()

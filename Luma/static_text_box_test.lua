@@ -1,5 +1,5 @@
-local text_box_static = require("src.text_box_static")
-local term = require("src.terminator")
+local text_box_static = require("src.term_components.text_box_static")
+local term = require("src.term_components.terminator")
 
 term.clear()
 

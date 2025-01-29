@@ -1,5 +1,5 @@
-local term = require("src.terminator")
-local text_box_static = require("src.text_box_static")
+local term = require("src.term_components.terminator")
+local text_box_static = require("src.term_components.text_box_static")
 
 --- @class text_box_dynamic : text_box_static
 local text_box_dynamic = setmetatable({}, { __index = text_box_static })
