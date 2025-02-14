@@ -14,6 +14,7 @@ config_module.config_json_abs_path = config_module.config_folder_abs_path .. con
 
 config_module.settings = {}
 config_module.settings.scheme = "ayu"
+config_module.settings.scheme_mode = "dark"
 
 --- Check whether the config JSON file exists
 ---@return boolean
