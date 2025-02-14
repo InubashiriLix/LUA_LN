@@ -1,4 +1,4 @@
-local ayu = require("src.scheme").ayu
+local ayu = require("src.scheme").molokai
 local text_box_dynamic = require("src.term_components.text_box_dynamic")
 local term = require("src.term_components.terminator")
 
