@@ -15,17 +15,17 @@ local text_box_dynamic = setmetatable({}, { __index = text_box_static })
 --- @param rounded boolean? Whether to use rounded corners
 --- @param filling boolean? Whether to fill the background
 function text_box_dynamic:new(origin_x, origin_y, width, height, fg, bg, border, rounded, filling)
-	-- 调用父类的构造函数
+	-- use the static text box as the base class
 	local obj = text_box_static:new("", origin_x, origin_y, fg, bg, width, height, border, rounded, filling)
 
-	-- 私有属性
+	-- private properties
 	local private = {
-		text = "", -- 动态内容
-		text_offset_x = 0, -- 水平偏移
-		text_offset_y = 0, -- 垂直偏移
+		text = "", -- dynamic text content
+		text_offset_x = 0, -- horizontal offset
+		text_offset_y = 0, -- vertical offset
 	}
 
-	-- 私有方法：计算文本行
+	-- private method: compute the number of text lines
 	local function compute_text_lines()
 		local rtn_table = {}
 		for line in private.text:gmatch("[^\r\n]+") do
@@ -34,7 +34,7 @@ function text_box_dynamic:new(origin_x, origin_y, width, height, fg, bg, border,
 		return rtn_table
 	end
 
-	-- 私有方法：计算最长行长度
+	-- compute the maximum length of the text lines
 	local function compute_line_max_len()
 		local max_len = 0
 		for _, line in ipairs(compute_text_lines()) do
@@ -43,30 +43,31 @@ function text_box_dynamic:new(origin_x, origin_y, width, height, fg, bg, border,
 		return max_len
 	end
 
-	-- 扩展公有方法
-
-	--- 更新文本内容
+	-- APIs
+	--- update the text content
 	--- @param new_text string
 	function obj:update_text(new_text)
-		private.text = new_text or ""
-		obj:update_size(obj.width, obj.height) -- 更新尺寸
+		if new_text then
+			private.text = new_text
+		end
+		-- obj:update_size(obj.width, obj.height) -- update size
 	end
 
-	--- 更新水平偏移
+	--- update horizontal offset
 	--- @param dx number
 	function obj:update_offset_x(dx)
 		local max_offset = math.max(0, compute_line_max_len() - obj.num_max_show_width)
 		private.text_offset_x = math.max(0, math.min(max_offset, private.text_offset_x + dx))
 	end
 
-	--- 更新垂直偏移
+	--- update the vertical offset
 	--- @param dy number
 	function obj:update_offset_y(dy)
 		local max_offset = math.max(0, #compute_text_lines() - (self.border and (self.height - 2) or self.height))
 		private.text_offset_y = math.max(0, math.min(max_offset, private.text_offset_y + dy))
 	end
 
-	--- 渲染动态文本框
+	--- rendering the dynamic text box
 	function obj:render()
 		local lines = compute_text_lines()
 		local text_abs_x = obj.origin_x + (obj.border and 1 or 0)
@@ -74,31 +75,32 @@ function text_box_dynamic:new(origin_x, origin_y, width, height, fg, bg, border,
 		local text_max_width = self.border and self.width - 2 or self.width
 		local num_lines = obj.border and obj.height - 2 or obj.height
 
-		-- 渲染顶部边框
+		-- set the color
+		term:render_color(obj.fg, obj.bg)
+
+		-- render the border
 		if obj.border then
 			term:move_to(obj.origin_x, obj.origin_y)
-			local top_border = (obj.rounded and "╭" or "┌")
-				.. string.rep("─", obj.width - 2)
-				.. (obj.rounded and "╮" or "┐")
+			local top_border = obj.border_syms.tl_corner
+				.. string.rep(obj.border_syms.h, obj.width - 2)
+				.. obj.border_syms.tr_corner
 			io.write(top_border)
 		end
 
-		-- 渲染内容行
+		-- render the content
 		for i = 1, num_lines do
 			local line_index = private.text_offset_y + i
 			local line = lines[line_index] or ""
 
 			term:move_to(obj.origin_x, obj.origin_y + i)
 			if obj.border then
-				io.write("│") -- 左侧边框
+				io.write(obj.border_syms.v) -- left side
 			end
 
-			-- 渲染行内容
-			term:render_color(obj.fg, obj.bg)
+			-- render the text content
 			io.write(line:sub(private.text_offset_x + 1, private.text_offset_x + text_max_width))
-			term:reset_color()
 
-			-- 填充空白部分
+			-- render the padding
 			io.write(
 				string.rep(
 					" ",
@@ -107,18 +109,20 @@ function text_box_dynamic:new(origin_x, origin_y, width, height, fg, bg, border,
 			)
 
 			if obj.border then
-				io.write("│") -- 右侧边框
+				io.write(obj.border_syms.v) -- right side bar
 			end
 		end
 
-		-- 渲染底部边框
+		-- render the bottom border
 		if obj.border then
 			term:move_to(obj.origin_x, obj.origin_y + obj.height - 1)
-			local bottom_border = (obj.rounded and "╰" or "└")
-				.. string.rep("─", obj.width - 2)
-				.. (obj.rounded and "╯" or "┘")
+			local bottom_border = self.border_syms.bl_corner
+				.. string.rep(self.border_syms.h, obj.width - 2)
+				.. self.border_syms.br_corner
 			io.write(bottom_border)
 		end
+
+		term:reset_color()
 
 		io.flush()
 	end

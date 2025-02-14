@@ -1,4 +1,5 @@
 local term = require("src.term_components.terminator")
+local border_sym = require("src.term_components.border_sym")
 local text_box_static = {}
 
 --- @ class text_box_static
@@ -27,6 +28,14 @@ function text_box_static:new(text_, origin_x_, origin_y_, fg_, bg_, width_, heig
 		border = border_ or false,
 		rounded = rounded_ or false,
 		filling = filling_ == nil and true or filling_,
+	}
+	obj.border_syms = {
+		v = border_sym.v,
+		h = border_sym.h,
+		tl_corner = obj.rounded and border_sym.tl_round or border_sym.tl_corner,
+		tr_corner = obj.rounded and border_sym.tr_round or border_sym.tr_corner,
+		bl_corner = obj.rounded and border_sym.bl_round or border_sym.bl_corner,
+		br_corner = obj.rounded and border_sym.br_round or border_sym.br_corner,
 	}
 
 	local private = {
@@ -123,15 +132,48 @@ function text_box_static:new(text_, origin_x_, origin_y_, fg_, bg_, width_, heig
 		self.border = new_border
 	end
 
+	--- update the border symbols
+	--- @param position_name string the position of the border symbol
+	---     "tl" for top-left corner
+	---     "tr" for top-right corner
+	---     "bl" for bottom-left corner
+	---     "br" for bottom-right corner
+	--- @param new_border string
+	function obj:update_border_sym(position_name, new_border)
+		if #new_border == 0 then
+			error("bad argument: the border symbol must be a single character")
+		end
+		local switch = {
+			["tl"] = function()
+				self.border_syms.tl_corner = new_border
+			end,
+			["tr"] = function()
+				self.border_syms.tr_corner = new_border
+			end,
+			["bl"] = function()
+				self.border_syms.bl_corner = new_border
+			end,
+			["br"] = function()
+				self.border_syms.br_corner = new_border
+			end,
+		}
+		setmetatable(switch, {
+			__newindex = function()
+				error("bad argument: the position_name is not valid")
+			end,
+		})
+		switch[position_name]()
+	end
+
 	--- render the gragh
 	--- render the text box
 	function obj:render()
 		if self.border then
 			term:render_color(self.fg, self.bg)
 			term:move_to(self.origin_x, self.origin_y)
-			local top_border = (self.rounded and "╭" or "┌")
-				.. string.rep("─", self.width - 2)
-				.. (self.rounded and "╮" or "┐")
+			local top_border = self.border_syms.tl_corner
+				.. string.rep(self.border_syms.h, self.width - 2)
+				.. self.border_syms.tr_corner
 			io.write(top_border)
 		end
 
@@ -144,7 +186,7 @@ function text_box_static:new(text_, origin_x_, origin_y_, fg_, bg_, width_, heig
 			term:move_to(self.origin_x, self.origin_y + i)
 			if self.border then
 				term:render_color(self.fg, self.bg)
-				io.write("│")
+				io.write(self.border_syms.v)
 			end
 
 			term:render_color(self.fg, self.bg)
@@ -153,16 +195,16 @@ function text_box_static:new(text_, origin_x_, origin_y_, fg_, bg_, width_, heig
 
 			if self.border then
 				term:render_color(self.fg, self.bg)
-				io.write("│")
+				io.write(self.border_syms.h)
 			end
 		end
 
 		if self.border then
 			term:move_to(self.origin_x, self.origin_y + self.height - 1)
 			term:render_color(self.fg, self.bg)
-			local bottom_border = (self.rounded and "╰" or "└")
-				.. string.rep("─", self.width - 2)
-				.. (self.rounded and "╯" or "┘")
+			local bottom_border = self.border_syms.bl_corner
+				.. string.rep(self.border_syms.h, self.width - 2)
+				.. self.border_syms.br_corner
 			io.write(bottom_border)
 		end
 
