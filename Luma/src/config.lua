@@ -16,6 +16,9 @@ config_module.settings = {}
 config_module.settings.scheme = "ayu"
 config_module.settings.scheme_mode = "dark"
 
+config_module.settings.sele_box = {}
+config_module.settings.sele_box.show_index = true
+
 --- Check whether the config JSON file exists
 ---@return boolean
 function config_module:is_config_exist()
