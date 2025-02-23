@@ -65,6 +65,16 @@ function term_module:move_to(x, y)
 	self.cursor.y = y
 end
 
+--- hide the cursor
+function term_module:hide_cursor()
+	io.write("\27[?25l")
+end
+
+--- show the cursor again
+function term_module:show_cursor()
+	io.write("\27[?25h")
+end
+
 --- move the cursor vertically
 --- @param n number the number of lines to move, positive for down, negative for up
 function term_module:move_vertically(n)
@@ -101,6 +111,16 @@ function term_module:render_color(fg, bg)
 		local r, g, b = hex_to_rgb(bg)
 		io.write(string.format("\27[48;2;%d;%d;%dm", r, g, b))
 	end
+end
+
+--- use hex color to get the complementary color
+--- @param hex string
+function term_module:get_complementary_color(hex)
+	local r, g, b = hex_to_rgb(hex)
+	local complement_r = 255 - r
+	local complement_g = 255 - g
+	local complement_b = 255 - b
+	return string.format("#%02x%02x%02x", complement_r, complement_g, complement_b)
 end
 
 --- reset the color to default
