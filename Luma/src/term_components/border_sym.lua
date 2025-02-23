@@ -20,4 +20,6 @@ border_sym.lf = "┤"
 
 border_sym.x = "┼"
 
+border_sym.ellipsis = "…"
+
 return border_sym
