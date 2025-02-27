@@ -3,7 +3,8 @@ local lfs = require("lfs")
 local socket = require("socket")
 local windows = require("src.sele_windows")
 
-local file_sys = require("src.filesys")
+local filesys = require("src.filesys")
+local file = require("src.file")
 
 local term = require("src.term_components.terminator")
 local main = require("src.sele_windows")
@@ -12,42 +13,36 @@ term:clear()
 
 windows = main.init()
 
-windows.file_prev_windows:append_sele_w("shit")
-windows.file_prev_windows:append_sele_w("shit")
-windows.file_prev_windows:append_sele_w("shit")
-windows.file_next_windows:append_sele_w("shit1")
-windows.file_next_windows:append_sele_w("shit1")
-windows.file_next_windows:append_sele_w("shit1")
+-- initialize the enterpoint file path
+local enterpoint_folder_abs_path = lfs.currentdir()
+-- local enterpoint_folder_abs_path = "/"
+file:FileInit(enterpoint_folder_abs_path)
 
-windows.file_curr_windows:append_sele_w("shit1")
-windows.file_curr_windows:append_sele_w("shit2")
-windows.file_curr_windows:append_sele_w("shit3")
-windows.file_curr_windows:append_sele_w("shit4")
-windows.file_curr_windows:append_sele_w("shit5")
-windows.file_curr_windows:append_sele_w("shit6")
-windows.file_curr_windows:append_sele_w("shit7")
-windows.file_curr_windows:append_sele_w("shit8")
-windows.file_curr_windows:append_sele_w("shit9")
-windows.file_curr_windows:append_sele_w("shit10")
-windows.file_curr_windows:append_sele_w("shit11")
-windows.file_curr_windows:append_sele_w("shit12")
-windows.file_curr_windows:append_sele_w("shit13")
-windows.file_curr_windows:append_sele_w("shit14")
-windows.file_curr_windows:append_sele_w("shit15")
-windows.file_curr_windows:append_sele_w("shit16")
-windows.file_curr_windows:append_sele_w("shit17")
-windows.file_curr_windows:append_sele_w("shit18")
-windows.file_curr_windows:append_sele_w("shit19")
-windows.file_curr_windows:append_sele_w("shit20")
-windows.file_curr_windows:append_sele_w("shit21")
-windows.file_curr_windows:append_sele_w("shit22")
-windows.file_curr_windows:append_sele_w("shit23")
-windows.file_curr_windows:append_sele_w("shit24")
-windows.file_curr_windows:append_sele_w("shit25")
+-- local temp_prev_seles, temp_curr_seles, temp_next_seles = file:FileRender()
+--
+-- windows.file_curr_windows:filling_update_selections_text(temp_curr_seles)
+-- windows.file_prev_windows:filling_update_selections_text(temp_prev_seles)
+-- windows.file_prev_windows:filling_update_selections_text(temp_prev_seles)
+windows.file_prev_windows:filling_update_selections_text(WindowsFiles.curr.rele_files_list)
+windows.file_curr_windows:filling_update_selections_text(WindowsFiles.curr.rele_files_list)
+windows.file_prev_windows:filling_update_selections_text(WindowsFiles.prev.rele_files_list)
 
-windows.file_prev_windows:update_header("{ prev dir }")
-windows.file_curr_windows:update_header("{ current dir }")
-windows.file_next_windows:update_header("{ next dir view }")
+if 0 then
+	print("CURR")
+	for _, item in ipairs(WindowsFiles.curr.rele_files_list) do
+		print(item)
+	end
+	print("NEXT")
+	if WindowsFiles.next.rele_files_list then
+		for _, item in ipairs(WindowsFiles.next.rele_files_list) do
+			print(item)
+		end
+	end
+	print("PREV")
+	for _, item in ipairs(WindowsFiles.prev.rele_files_list) do
+		print(item)
+	end
+end
 
 windows:render()
 
@@ -80,14 +75,44 @@ while true do
 
 	if char == string.byte("j") then
 		windows.file_curr_windows:scroll(1)
+		WindowsFiles.next = file.new(WindowsFiles.curr:get_child_abs_path(windows.file_curr_windows.current_sele_index))
+		windows.file_next_windows:filling_update_selections_text(WindowsFiles.next.rele_files_list)
 	end
 
 	if char == string.byte("k") then
 		windows.file_curr_windows:scroll(-1)
+		WindowsFiles.next = file.new(WindowsFiles.curr:get_child_abs_path(windows.file_curr_windows.current_sele_index))
+		windows.file_next_windows:filling_update_selections_text(WindowsFiles.next.rele_files_list)
+	end
+	if char == string.byte("l") then
+		if
+			file:FileNext(
+				WindowsFiles.curr.abs_file_path
+					.. "/"
+					.. windows.file_curr_windows.private.selections[windows.file_curr_windows.current_sele_index].text
+			)
+		then
+			windows.file_prev_windows:filling_update_selections_text(WindowsFiles.prev.rele_files_list)
+			windows.file_prev_windows.current_sele_index = windows.file_curr_windows.current_sele_index
+			windows.file_curr_windows:filling_update_selections_text(WindowsFiles.curr.rele_files_list)
+			windows.file_curr_windows.current_sele_index = 1
+			windows.file_next_windows:filling_update_selections_text(WindowsFiles.next.rele_files_list)
+		end
+	end
+
+	if char == string.byte("h") then
+		file:FileBack()
+		windows.file_prev_windows:filling_update_selections_text(WindowsFiles.prev.rele_files_list)
+		windows.file_curr_windows:filling_update_selections_text(WindowsFiles.curr.rele_files_list)
+		windows.file_curr_windows.current_sele_index = 1
+		windows.file_next_windows:filling_update_selections_text(WindowsFiles.next.rele_files_list)
+		windows.file_next_windows.current_sele_index = 1
 	end
 
 	if char == string.byte("q") then
-		print("Quit")
+		term:clear()
+		term:move_to(0, 0)
+		print("    Luma Ist Gestorben")
 		break
 	end
 
@@ -101,14 +126,18 @@ while true do
 				-- print("detected A")
 			elseif next2 == 66 then -- down
 				windows.file_curr_windows:scroll(1)
-				-- print("detected B")
-				-- elseif next2 == 67 then
-				-- -- print("detected C")
-				-- 	-- return "right"
-				--                 --
-				-- elseif next2 == 68 then
-				-- -- print("detected D")
-				-- 	-- return "left"
+			elseif next2 == 67 then
+				-- return "right"
+				file:FileNext(
+					WindowsFiles.curr.abs_file_path
+						.. "/"
+						.. windows.file_curr_windows.private.selections[windows.file_curr_windows.current_sele_index].text
+				)
+				windows.file_prev_windows:filling_update_selections_text(WindowsFiles.curr.rele_files_list)
+				windows.file_curr_windows:filling_update_selections_text(WindowsFiles.curr.rele_files_list)
+				windows.file_prev_windows:filling_update_selections_text(WindowsFiles.prev.rele_files_list)
+			elseif next2 == 68 then
+				-- return "left"
 			end
 		end
 		-- elseif char == "\n" or char == "\r" then -- enter

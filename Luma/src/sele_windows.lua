@@ -197,6 +197,10 @@ function windows.init()
 
 	self.info_windows:update_border_sym("br", border_syms.tu)
 
+	self.file_prev_windows:update_header("{ prev dir }")
+	self.file_curr_windows:update_header("{ current dir }")
+	self.file_next_windows:update_header("{ next dir view }")
+
 	function self:render()
 		self.view_windows:render()
 		self.info_windows:render()
