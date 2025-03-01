@@ -1,0 +1,33 @@
+{
+    "Lua": {
+        "runtime": {
+            "version": "LuaJIT",
+            "path": [
+                "?.lua",
+                "?/init.lua"
+            ]
+        },
+        "workspace": {
+            "checkThirdParty": false,
+            "library": [
+                "./test",
+                "./src",
+                "./lib",
+                "${workspace}/**",
+                "/usr/local/share/lua/5.1",
+                "/usr/local/lib/luarocks/rocks-5.1/",
+                "${3rd}/lfs/library",
+                "${3rd}/cjson/library",
+                "${3rd}/socket/library"
+            ]
+        },
+        "diagnostics": {
+            "globals": [
+                "vim",
+                "lfs",
+                "cjson",
+                "socket"
+            ]
+        }
+    }
+}
